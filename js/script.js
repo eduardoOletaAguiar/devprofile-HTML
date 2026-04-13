@@ -32,19 +32,31 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
     }
 }
 
+
+
 async function actualizarPerfil(username) {
     const btn = document.getElementById("btn-actualizar");
     if (!btn) return;
 
     btn.disabled = true;
+    const textoOriginal = btn.textContent;
     btn.textContent = "Actualizando...";
 
     const res = await fetchAPI("/profiles/" + username, 'PUT');
 
-    if (res) {
+    // SOLUCIÓN: Validamos que 'res' no sea null y que contenga 'profile'
+    if (res && res.profile) {
         const contenedor = document.getElementById("cuadrocont");
-        renderDetalle(res, contenedor);
-    } 
+        renderDetalle(res.profile, contenedor); 
+        // Nota: res.profile contiene los datos del usuario actualizados
+    } else {
+        // Si no hay respuesta (o es un error 429 handled by handleError), 
+        // restauramos el botón solo si no tiene un contador activo
+        if (!btn.textContent.includes("m") && !btn.textContent.includes("s")) {
+            btn.disabled = false;
+            btn.textContent = textoOriginal;
+        }
+    }
 }
 
 function handleError(status, result) {
@@ -57,6 +69,15 @@ function handleError(status, result) {
             btnAct.disabled = true;
             btnAct.style.cursor = "not-allowed";
             btnAct.style.opacity = "0.6";
+
+            // Mostramos la tarjeta de advertencia UNA SOLA VEZ
+            showErrorCard({
+                code: status,
+                title: "Límite de actualización",
+                desc: msg,
+                color: "#e9c62a",
+                bg: "rgba(233, 198, 42, 0.1)"
+            });
             
             const timer = setInterval(() => {
                 remaining--;
@@ -66,11 +87,13 @@ function handleError(status, result) {
                     btnAct.style.cursor = "pointer";
                     btnAct.style.opacity = "1";
                     btnAct.textContent = "Actualizar Datos";
+                    // Opcional: Limpiar la advertencia cuando el tiempo acabe
+                    const cont = document.getElementById("advertenciaCont");
+                    if(cont) cont.innerHTML = "";
                 } else {
-                    // Calculamos minutos y segundos para que sea legible
                     const m = Math.floor(remaining / 60);
                     const s = remaining % 60;
-                    btnAct.textContent = `Reintentar en ${m}m ${s}s`;
+                    btnAct.textContent = `${m}m ${s}s`;
                 }
             }, 1000);
         }
@@ -78,35 +101,31 @@ function handleError(status, result) {
     }
 
     const inputUser = document.getElementById("username")?.value || "usuario";
-    if (status === 404) {
-        showErrorCard({
-            code: "404",
-            title: "No encontrado",
-            desc: `GitHub no reconoce a <strong>@${inputUser}</strong>. Revisa la ortografía.`,
-            color: "#cc8f30",
-            bg: "rgba(204,143,48,0.1)"
-        });
-    } else if (status === 500) {
-        const esPokeAPI = msg.includes("pokeapi");
-        showErrorCard({
-            code: "500",
-            title: esPokeAPI ? "Error de Pokémon" : "Error de Servidor",
-            desc: esPokeAPI ? "Perfil encontrado, pero falló PokeAPI." : `Error interno: ${msg}`,
-            color: "#cc4747",
-            bg: "rgba(204,71,71,0.1)"
-        });
-    } else {
-        showErrorCard({
-            code: status, title: "Error inesperado", desc: msg, color: "#cc4747", bg: "rgba(204,71,71,0.1)"
-        });
+    if (status === 400 || status === 404) {
+        window.location.href = "error404.html";
+        return;
     }
+
+    if (status === 500) {
+        window.location.href = "error500.html";
+        return;
+    }
+
+    // 3. OTROS ERRORES (Opcional: Si no quieres que aparezcan, puedes comentar esto)
+    showErrorCard({
+        code: status,
+        title: "Error inesperado",
+        desc: msg,
+        color: "#cc4747",
+        bg: "rgba(204,71,71,0.1)"
+    });
 }
 
 function showErrorCard({ code, title, desc, color, bg }) {
     const cont = document.getElementById("cuadrocont");
     if (!cont) return;
     cont.innerHTML = `
-        <div class="card" style="border: 2px solid ${color}; background: ${bg}; text-align: center; gap: 8px;">
+        <div class="card" style="width: 350px; border: 2px solid ${color}; background: ${bg}; text-align: center; gap: 8px;">
             <span style="font-size:48px; color:${color}; font-weight:bold; text-shadow: 3px 3px 0 rgba(0,0,0,0.3);">${code}</span>
             <p style="font-size:20px; color:#e8eaf2; margin:0;">${title}</p>
             <p style="font-size:14px; color:#8890a8; margin:0; max-width:360px; line-height:1.7;">${desc}</p>
@@ -139,8 +158,8 @@ function buildRowHTML(d) {
                 <img src="${d.avatar_url}" onerror="this.src='https://github.com/identicons/${d.github_user}.png'" 
                      style="width:45px; height:45px; border-radius:50%; border:1px solid #4792cc;">
                 <div style="display: flex; flex-direction: column;">
-                    <p style="margin:0; font-size:22px; font-weight: bold; line-height: 1.2;">${d.name || d.github_user}</p>
-                    <p style="margin:0; font-size:14px; color:#8890a8;">@${d.github_user}</p>
+                    <p style="margin:0; font-size:22px; font-weight: bold; line-height: 1.2; margin-right:auto;">${d.name || d.github_user}</p>
+                    <p style="margin:0; font-size:14px; color:#8890a8; margin-right:auto;">@${d.github_user}</p>
                 </div>
             </div>
 
@@ -165,6 +184,7 @@ function buildAuditCard(l) {
                 <span style="color: #000000; font-size: 20px;">${formatFecha(l.timestamp)}</span>
             </div>
             <p style="margin:0; font-size:25px; color: #000000;">${descripciones[l.event] || 'Evento registrado.'}</p>
+            <p style="margin:0; font-size:20px; color: #8890a8;">Autor IP: ${l.author_ip || 'Desconocida'}</p>
         </div>`;
 }
 
@@ -318,21 +338,25 @@ async function cargarAudit() {
 }
 
 async function cargarDetallePerfil() {
-    const cont = document.getElementById("cuadrocont");
+    const cont = document.getElementById("perfilcont");
     const params = new URLSearchParams(window.location.search);
     const user = params.get("user");
     if (!user || !cont) return;
 
-    cont.innerHTML = "<p style='color:#8890a8; text-align:center;'>Cargando datos detallados...</p>";
+    cont.innerHTML = "<p style='color:#8890a8; text-align:center;'>Cargando...</p>";
+    
     const res = await fetchAPI("/profiles/" + user);
-    if (res) renderDetalle(res, cont);
+    
+    // CAMBIO: Ahora validamos res.profile según tu nuevo JSON
+    if (res && res.profile) {
+        renderDetalle(res.profile, cont); 
+    }
 }
 
 function renderDetalle(d, contenedor) {
     const card = document.createElement("div");
     card.className = "card";
-        card.style.cssText = "width:752px; gap:30px; display:flex; flex-direction:row; align-items:center; padding:30px;";
-
+    card.style.cssText = "width:752px; gap:30px; display:flex; flex-direction:row; align-items:center; padding:30px;";
 
     card.innerHTML = `
         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; padding-right: 20px;">
@@ -342,9 +366,7 @@ function renderDetalle(d, contenedor) {
             <p style="font-size:18px; color:#8890a8; text-align:center; margin-top:15px; line-height:1.4;">${d.bio || "Sin biografía"}</p>
         </div>
 
-
         <div style="flex: 1.5; display: flex; flex-direction: column; gap: 20px;">
-
             <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; text-align:center;">
                 <div style="background:#31364b; border-radius:6px; padding:15px; font-size:22px; color:#fff;">${d.followers}<br><small style="font-size:14px; color:#8890a8;">Seguidores</small></div>
                 <div style="background:#31364b; border-radius:6px; padding:15px; font-size:22px; color:#fff;">${d.following}<br><small style="font-size:14px; color:#8890a8;">Siguiendo</small></div>
@@ -363,7 +385,6 @@ function renderDetalle(d, contenedor) {
                 <button id="btn-actualizar" class="btn1" style="width:100%; height:45px; font-size:18px;">Actualizar Datos</button>
             </div>
         </div>
-
     `;
 
     contenedor.innerHTML = "";
