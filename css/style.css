@@ -1,4 +1,4 @@
-@font-face { font-family: 'AnotherPixelChar'; src: url('..\assets\font\AnotherPixelChar.ttf'); }
+@font-face { font-family: 'AnotherPixelChar'; src: url('../assets/font/AnotherPixelChar.ttf'); }
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -71,6 +71,10 @@ button{
 hr{
     border: 2px solid #555a6f;
     width: 790px;
+}
+
+img{
+    border-radius: 0%;
 }
 
 .titulo{
