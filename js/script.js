@@ -42,7 +42,6 @@ async function actualizarPerfil(username) {
     const res = await fetchAPI("/profiles/" + username, 'PUT');
 
     if (res) {
-        // ÉXITO: Go devolvió el JSON del perfil actualizado
         const contenedor = document.getElementById("cuadrocont");
         renderDetalle(res, contenedor);
     } 
@@ -53,12 +52,11 @@ function handleError(status, result) {
     const btnAct = document.getElementById("btn-actualizar");
 
     if (status === 429) {
-        // En lugar de mostrar card, bloqueamos el botón directamente
         if (btnAct) {
             let remaining = result?.retry_after_seconds ?? 3600;
             btnAct.disabled = true;
             btnAct.style.cursor = "not-allowed";
-            btnAct.style.opacity = "0.6"; // Feedback visual de desactivado
+            btnAct.style.opacity = "0.6";
             
             const timer = setInterval(() => {
                 remaining--;
@@ -76,10 +74,9 @@ function handleError(status, result) {
                 }
             }, 1000);
         }
-        return; // Salimos para que NO se ejecute showErrorCard
+        return; 
     }
 
-    // Los demás errores (404, 500, etc.) siguen usando la tarjeta
     const inputUser = document.getElementById("username")?.value || "usuario";
     if (status === 404) {
         showErrorCard({
@@ -179,8 +176,6 @@ function confirmarEliminacion(username, rowId) {
     const row = document.getElementById(rowId);
     if (!row) return;
 
-    // Guardamos los datos para poder reconstruir la fila si cancela
-    // Buscamos la imagen y el nombre actual antes de borrar
     const currentImg = row.querySelector('img').src;
     const currentName = row.querySelector('p').textContent;
 
@@ -213,7 +208,6 @@ function cancelarEliminacion(username, rowId, img, name) {
     row.style.opacity = "0";
     
     setTimeout(() => {
-        // Reseteo de estilos para volver a ser barra horizontal
         row.style.borderColor = ""; 
         row.style.background = "";
         row.style.flexDirection = "row";
@@ -337,36 +331,44 @@ async function cargarDetallePerfil() {
 function renderDetalle(d, contenedor) {
     const card = document.createElement("div");
     card.className = "card";
-    card.style.cssText = "width:460px; gap:10px; display:flex; flex-direction:column; align-items:center;";
+        card.style.cssText = "width:752px; gap:30px; display:flex; flex-direction:row; align-items:center; padding:30px;";
+
 
     card.innerHTML = `
-        <img src="${d.avatar_url}" style="width:120px; height:120px; border-radius:50%; border:3px solid #4792cc;">
-        <h2 style="margin:0; font-size:35px;">${d.name || d.github_user}</h2>
-        <p style="color:#8890a8; margin:0;">@${d.github_user}</p>
-        <p style="font-size:20px; color:#8890a8; text-align:center;">${d.bio || "Sin biografía"}</p>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; width:100%; text-align:center;">
-            <div style="background:#31364b; border-radius:6px; padding:10px; font-size:25px;">${d.followers}<br><small>Seguidores</small></div>
-            <div style="background:#31364b; border-radius:6px; padding:10px; font-size:25px;">${d.following}<br><small>Siguiendo</small></div>
-            <div style="background:#31364b; border-radius:6px; padding:10px; font-size:25px;">${d.public_repos}<br><small>Repos</small></div>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; padding-right: 20px;">
+            <img src="${d.avatar_url}" style="width:140px; height:140px; border-radius:50%; border:3px solid #4792cc; margin-bottom:15px;">
+            <h2 style="margin:0; font-size:35px; text-align:center;">${d.name || d.github_user}</h2>
+            <p style="color:#8890a8; margin:0; font-size:18px;">@${d.github_user}</p>
+            <p style="font-size:18px; color:#8890a8; text-align:center; margin-top:15px; line-height:1.4;">${d.bio || "Sin biografía"}</p>
         </div>
-        <div style="background:#31364b; border-radius:6px; padding:12px; width:100%; display:flex; align-items:center; justify-content:space-between;">
-            <div style="text-align:left;">
-                <p style="margin:0; font-size:25px; color:#8890a8;">Lenguaje: <span style="color:#4792cc;">${d.language}</span></p>
-                <p style="margin:0; font-size:25px; color:#8890a8;">Pokémon: <span style="text-transform:capitalize; color:#fff;">${d.pokemon}</span></p>
+
+
+        <div style="flex: 1.5; display: flex; flex-direction: column; gap: 20px;">
+
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; text-align:center;">
+                <div style="background:#31364b; border-radius:6px; padding:15px; font-size:22px; color:#fff;">${d.followers}<br><small style="font-size:14px; color:#8890a8;">Seguidores</small></div>
+                <div style="background:#31364b; border-radius:6px; padding:15px; font-size:22px; color:#fff;">${d.following}<br><small style="font-size:14px; color:#8890a8;">Siguiendo</small></div>
+                <div style="background:#31364b; border-radius:6px; padding:15px; font-size:22px; color:#fff;">${d.public_repos}<br><small style="font-size:14px; color:#8890a8;">Repos</small></div>
             </div>
-            <img src="${d.pokemon_img}" style="width:150px; height:150px; image-rendering:pixelated;">
+
+            <div style="background:#31364b; border-radius:6px; padding:15px; display:flex; align-items:center; justify-content:space-between;">
+                <div style="text-align:left;">
+                    <p style="margin:0; font-size:20px; color:#8890a8;">Lenguaje: <span style="color:#4792cc; font-weight:bold;">${d.language}</span></p>
+                    <p style="margin:5px 0 0; font-size:20px; color:#8890a8;">Pokémon: <span style="text-transform:capitalize; color:#fff; font-weight:bold;">${d.pokemon}</span></p>
+                </div>
+                <img src="${d.pokemon_img}" style="width:120px; height:120px; image-rendering:pixelated;">
+            </div>
+
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top:10px;">
+                <button id="btn-actualizar" class="btn1" style="width:100%; height:45px; font-size:18px;">Actualizar Datos</button>
+            </div>
         </div>
-        
-        <div style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
-            <button id="btn-actualizar" class="btn1" style="width:100%;">Actualizar Datos</button>
-            <button class="btn2" onclick="location.href='almacen.html'" style="width:100%;">Volver al Almacén</button>
-        </div>
+
     `;
 
     contenedor.innerHTML = "";
     contenedor.appendChild(card);
 
-    // Asignar el evento al botón recién creado
     document.getElementById("btn-actualizar").onclick = () => actualizarPerfil(d.github_user);
 }
 
@@ -391,7 +393,6 @@ window.onload = function() {
     
     inputBusquedaAudit?.addEventListener("input", filtrarAuditoria);
     
-    document.getElementById("auditBtn")?.addEventListener("click", cargarAudit);
     document.getElementById("submitBtn")?.addEventListener("click", enviarDatos);
     document.getElementById("username")?.addEventListener("keydown", (e) => { if(e.key === "Enter") enviarDatos(); });
 };
@@ -399,7 +400,7 @@ window.onload = function() {
 function filtrarPerfiles() {
     const busqueda = document.getElementById("usernamebuscar").value.toLowerCase().trim();
     const contenedor = document.getElementById("cuadrocont");
-    const filas = contenedor.querySelectorAll(".card"); // Busca todas las barras/cards
+    const filas = contenedor.querySelectorAll(".card"); 
 
     filas.forEach(fila => {
         const texto = fila.textContent.toLowerCase();
@@ -421,12 +422,9 @@ function filtrarAuditoria() {
     const filas = contenedor.querySelectorAll("#cuadrocont > .card");
 
     filas.forEach(fila => {
-        // Obtenemos todo el texto de la card para una búsqueda global (Evento, Usuario, IP)
         const textoCompleto = fila.textContent.toLowerCase();
 
         if (textoCompleto.includes(busqueda)) {
-            // Al mostrar, solo cambiamos el display. 
-            // NO tocamos width ni flexDirection aquí para que use los del estilo original
             fila.style.display = "flex";
         } else {
             fila.style.display = "none";
