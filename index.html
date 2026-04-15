@@ -9,19 +9,21 @@
 <body class="body">
     <div class="titulo">Devprofile</div>
 
-    <div class="main-cont" >
+    <div class="main-cont borde-cont">
 
-        <p class="bienvenida"> Bienvenido a Devprofile, un lugar para descubrir y compartir perfiles de desarrolladores de GitHub, ver sus estadisticas y matchear algunas interesantes apis.</p>
-        
-        <button id="auditBtn" class="btn1" onclick="location.href='audit.html';" style="width: 300px; margin-top: 4px;">Historial</button>
+        <p class="bienvenida"> Un lugar para descubrir y guardar perfiles de desarrolladores de GitHub. Consulta su lenguaje principal, repositorios destacados y su Pokémon asociado.</p>
+        <button id="auditBtn" class="btn1" onclick="location.href='audit.html';" style="width: 200px; max-width: 200px; margin-top: 4px;">Historial</button>
 
         <hr>
 
-        <input id="username" type="text" placeholder="Introduce un usuario">
+        
+        <div class="input-cont" style="max-width: 450px;" >
+            <input id="username" type="text" placeholder="Introduce un usuario">
+            <button id="submitBtn" class="btn1">Agregar</button>
+        </div>
 
-        <button id="submitBtn" class="btn1">Agregar</button>
-
-        <button id="VerBtn" class="btn2" onclick="location.href='almacen.html';" style="width: 456px; margin-top: 4px;">Ver todos los perfiles</button>
+        
+        <button id="VerBtn" class="btn2" onclick="location.href='almacen.html';" style="max-width: 450px; margin-top: 4px;">Ver todos los perfiles</button>
     
         <div id="cuadrocont" class="cuadrocont" >
             

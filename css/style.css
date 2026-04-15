@@ -1,4 +1,15 @@
-@font-face { font-family: 'AnotherPixelChar'; src: url('../assets/font/AnotherPixelChar.ttf'); }
+/* ═══════════════════════════════════════
+   1. Núcleo de Estilos
+═══════════════════════════════════════ */
+
+@font-face { 
+    font-family: 'AnotherPixelChar'; 
+    src: url('../assets/font/AnotherPixelChar.ttf'); 
+}
+
+* {
+    box-sizing: border-box;
+}
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -6,21 +17,91 @@
   75% { transform: translateX(5px); }
 }
 
-p{
+.body {
+    background-color: #282b33;
     font-family: 'AnotherPixelChar', sans-serif;
-    font-size: 30px;
+    margin: 0 auto;
+    padding: 10px;
+    text-align: center;
 }
 
-.bienvenida{
-    font-family: 'AnotherPixelChar', sans-serif;
-    font-size: 30px;
+.main-cont {
+    display: inline-block;
+    padding: 15px;
+    width: 95%;   
+    max-width: 810px;
+    min-height: 460px;
+    vertical-align: top;
+}
+
+.borde-cont {
+    border-radius: 6px;
+    border: 3px solid #555a6f;
+}
+
+.cuadrocont {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 500px; 
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 6px;
+    margin-top: 6px;
+    width: 90%;
+}
+
+.card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+.card p {
+    margin: 2px;
+    font-size: 38px;
+}
+
+.card button {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    width: 100%;
+    justify-content: center;
+}
+
+.input-cont {
+    display: flex; 
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    max-width: 798px;
+    margin: 10px auto;
+}
+
+.titulo {
+    font-size: 150px;
     color: #ffffff;
+    margin: 20px 0;
 }
 
-.bienvenida2{
+p {
     font-family: 'AnotherPixelChar', sans-serif;
     font-size: 30px;
-    color: #555a6f;
+}
+
+hr {
+    border: 2px solid #555a6f;
+    width: 100%;
+    max-width: 790px;
+    margin: 20px auto;
 }
 
 input[type='text'] {
@@ -30,106 +111,113 @@ input[type='text'] {
     border-radius: 4px;
     font-size: 30px;
     transition: border-color 0.3s;
+    width: 100%;
+    min-width: 130px;  
+    max-width: 732px;
 }
 
 input[type='text']:focus {
-    border-color:
-    #31364b;
+    border-color: #31364b;
     outline: none;
 }
 
-button{
+button {
     font-family: 'AnotherPixelChar', sans-serif;
     padding: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
-
-
-.btn1{
-    color: #ffffff;
-    background-color: #4792cc;
     border-radius: 4px;
     font-size: 30px;
-}
-
-.btn1:hover {
-    background-color: #8eb5dc
-}
-
-.btn2{
     color: #ffffff;
-    background-color: #485056;
-    border-radius: 4px;
+    border: none;
+}
+
+.btn1 { background-color: #4792cc; }
+.btn1:hover { background-color: #8eb5dc; }
+
+.btn2 { background-color: #485056; }
+.btn2:hover { background-color: #727a83; }
+
+/* ═══════════════════════════════════════
+   2. Index & Específicos
+═══════════════════════════════════════ */
+
+.bienvenida {
     font-size: 30px;
+    color: #ffffff;
+    line-height: 1.2;
 }
 
-.btn2:hover {
-    background-color: #727a83
-}
-
-hr{
-    border: 2px solid #555a6f;
-    width: 790px;
-}
-
-img{
-    border-radius: 0%;
-}
-
-.titulo{
-    font-size: 200px;
-    color:#ffffff;
-}
-
-.body{
-    background-color: #282b33;
-    font-family: 'AnotherPixelChar', sans-serif;
-    margin: 0 auto;
-    padding: 5px;
-    text-align: center;
-}
-
-.main-cont{
-    display: inline-block;
-    border: 3px solid #555a6f;
-    border-radius: 6px;
-    padding: 10px;
-    width: 810px;
-    min-height: 460px;
-}
-
-.cuadrocont{
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-
-.card {
-    margin-top: 6px;
-    padding: 20px;
-    width: 320px;
-    border-radius: 6px;
-    background-color: #f9f9f9;
-}
-
-.card img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-}
-
-.card p{
-    margin: 2px;
-    font-size: 38px;
-}
-
-.card button{
-    display: flex;
-    gap: 10px;
-    margin-top: 8px;
+.index-card {
     width: 100%;
-    justify-content: center;
+    max-width: 300px;
+    gap: 20px;
+    padding: 20px;
+}
+
+.profile-card {
+    width: 100%;
+    max-width: 752px;
+    gap: 30px;
+    padding: 30px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+}
+
+/* ═══════════════════════════════════════
+   3. RESPONSIVE
+═══════════════════════════════════════ */
+
+@media (max-width: 800px) {
+    .titulo {
+        font-size: 60px;
+    }
+
+    .bienvenida {
+        font-size: 22px;
+    }
+
+    .profile-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-card > div:first-child {
+        border-right: none !important;
+        border-bottom: 2px solid #31364b;
+        padding-right: 0 !important;
+        padding-bottom: 20px;
+        width: 100%;
+    }
+
+
+    div[style*="flex-direction: row"] {
+        flex-direction: column !important;
+        height: auto !important;
+        width: 100% !important;
+        padding: 15px !important;
+    }
+
+    div[style*="margin-left: auto"] {
+        margin-left: 0 !important;
+        margin-top: 15px;
+        width: 100%;
+        justify-content: center !important;
+    }
+
+    div[style*="width: 780px"] {
+        width: 100% !important;
+        padding: 10px !important;
+    }
+
+    #VerBtn, #auditBtn, #submitBtn {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .titulo { font-size: 45px; }
+    p, button, input { font-size: 22px !important; }
 }

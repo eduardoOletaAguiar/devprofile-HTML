@@ -21,13 +21,7 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
         }
         return result;
     } catch (error) {
-        showErrorCard({
-            code: "Error",
-            title: "Sin conexión",
-            desc: "No se pudo contactar con el servidor AWS. Verifica que PM2 esté corriendo.",
-            color: "#cc4747",
-            bg: "rgba(204,71,71,0.1)"
-        });
+        window.location.href = "error500.html";
         return null;
     }
 }
@@ -44,14 +38,10 @@ async function actualizarPerfil(username) {
 
     const res = await fetchAPI("/profiles/" + username, 'PUT');
 
-    // SOLUCIÓN: Validamos que 'res' no sea null y que contenga 'profile'
     if (res && res.profile) {
         const contenedor = document.getElementById("cuadrocont");
         renderDetalle(res.profile, contenedor); 
-        // Nota: res.profile contiene los datos del usuario actualizados
     } else {
-        // Si no hay respuesta (o es un error 429 handled by handleError), 
-        // restauramos el botón solo si no tiene un contador activo
         if (!btn.textContent.includes("m") && !btn.textContent.includes("s")) {
             btn.disabled = false;
             btn.textContent = textoOriginal;
@@ -70,7 +60,6 @@ function handleError(status, result) {
             btnAct.style.cursor = "not-allowed";
             btnAct.style.opacity = "0.6";
 
-            // Mostramos la tarjeta de advertencia UNA SOLA VEZ
             showErrorCard({
                 code: status,
                 title: "Límite de actualización",
@@ -87,7 +76,6 @@ function handleError(status, result) {
                     btnAct.style.cursor = "pointer";
                     btnAct.style.opacity = "1";
                     btnAct.textContent = "Actualizar Datos";
-                    // Opcional: Limpiar la advertencia cuando el tiempo acabe
                     const cont = document.getElementById("advertenciaCont");
                     if(cont) cont.innerHTML = "";
                 } else {
@@ -100,7 +88,6 @@ function handleError(status, result) {
         return; 
     }
 
-    const inputUser = document.getElementById("username")?.value || "usuario";
     if (status === 400 || status === 404) {
         window.location.href = "error404.html";
         return;
@@ -111,7 +98,6 @@ function handleError(status, result) {
         return;
     }
 
-    // 3. OTROS ERRORES (Opcional: Si no quieres que aparezcan, puedes comentar esto)
     showErrorCard({
         code: status,
         title: "Error inesperado",
@@ -137,9 +123,8 @@ function showErrorCard({ code, title, desc, color, bg }) {
 ═══════════════════════════════════════ */
 
 function buildCardHTML(d) {
-
     return `
-        <div class="card" style="text-align: center; gap: 10px;">
+        <div class="card index-card" style="text-align: center; gap: 10px;">
             <img src="${d.avatar_url}" onerror="this.src='https://github.com/identicons/${d.github_user}.png'"
                  style="width:80px; height:80px; border-radius:50%; border:2px solid #4792cc;">
             <div>
@@ -149,10 +134,11 @@ function buildCardHTML(d) {
             <button class="btn1" onclick="window.location.href='verPerfil.html?user=${d.github_user}'">Ver perfil</button>
         </div>`;
 }
+
 function buildRowHTML(d) {
     const idRow = `row-${d.github_user.replace(/\s+/g, '-')}`;
     return `
-        <div class="card" id="${idRow}" style="flex-direction: row; display: flex; justify-content: flex-start; align-items: center; width: 768px; padding: 12px 20px; gap: 15px; transition: all 0.3s ease;">
+        <div class="card" id="${idRow}" style="flex-direction: row; display: flex; justify-content: flex-start; align-items: center; width: 748px; padding: 12px 20px; gap: 15px; transition: all 0.3s ease;">
             
             <div style="display: flex; align-items: center; gap: 15px;">
                 <img src="${d.avatar_url}" onerror="this.src='https://github.com/identicons/${d.github_user}.png'" 
@@ -178,13 +164,13 @@ function buildAuditCard(l) {
         DELETE: `Registro de <strong>@${l.resource}</strong> eliminado.`
     };
     return `
-        <div class="card" style="border-left: 6px solid ${colores[l.event] || '#000000'}; align-items: flex-start; gap: 8px; width: 768px; margin-bottom: 15px; display: flex; flex-direction: column;">
+        <div class="card" style="border-left: 6px solid ${colores[l.event] || '#000000'}; align-items: flex-start; gap: 8px; width: 100%; min-width: 180px; max-width: 756px; margin-bottom: 15px; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; width: 100%;">
-                <span style="color: ${colores[l.event]}; font-weight: bold; font-size: 25px;">${l.event}</span>
-                <span style="color: #000000; font-size: 20px;">${formatFecha(l.timestamp)}</span>
+                <span style="color: ${colores[l.event]}; margin-left: 6px; font-weight: bold; font-size: 25px;">${l.event}</span>
+                <span style="color: #000000; margin-right: 6px; font-size: 20px;">${formatFecha(l.timestamp)}</span>
             </div>
-            <p style="margin:0; font-size:25px; color: #000000;">${descripciones[l.event] || 'Evento registrado.'}</p>
-            <p style="margin:0; font-size:20px; color: #8890a8;">Autor IP: ${l.author_ip || 'Desconocida'}</p>
+            <p style="margin:0; font-size:25px; margin-left: 6px; color: #000000;">${descripciones[l.event] || 'Evento registrado.'}</p>
+            <p style="margin:0; font-size:20px; margin-left: 6px; color: #8890a8;">Autor IP: ${l.author_ip || 'Desconocida'}</p>
         </div>`;
 }
 
@@ -276,7 +262,7 @@ async function enviarDatos() {
     const btn = document.getElementById("submitBtn");
     if (!nombre || !cont) return;
 
-    cont.innerHTML = "<div class='card' style='color:#8890a8;'>Verificando disponibilidad...</div>";
+    cont.innerHTML = "<div class='card' style='width: 260px; height: 50px; font-size: 25px;'>Verificando disponibilidad...</div>";
     btn.disabled = true;
 
     try {
@@ -347,19 +333,19 @@ async function cargarDetallePerfil() {
     
     const res = await fetchAPI("/profiles/" + user);
     
-    // CAMBIO: Ahora validamos res.profile según tu nuevo JSON
-    if (res && res.profile) {
-        renderDetalle(res.profile, cont); 
+    if (res && res.profile && res.repos) {
+        renderDetalle(res.profile, res.repos || [], cont); 
     }
 }
 
-function renderDetalle(d, contenedor) {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.style.cssText = "width:752px; gap:30px; display:flex; flex-direction:row; align-items:center; padding:30px;";
+function renderDetalle(d, drepos, contenedor) {
+    const profile = document.createElement("div");
+    profile.classList.add("profile-card");
+    profile.classList.add("card");
+    
 
-    card.innerHTML = `
-        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; padding-right: 20px;">
+    profile.innerHTML = `
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; padding-right: 20px; border-right: 2px solid #31364b;">
             <img src="${d.avatar_url}" style="width:140px; height:140px; border-radius:50%; border:3px solid #4792cc; margin-bottom:15px;">
             <h2 style="margin:0; font-size:35px; text-align:center;">${d.name || d.github_user}</h2>
             <p style="color:#8890a8; margin:0; font-size:18px;">@${d.github_user}</p>
@@ -378,20 +364,38 @@ function renderDetalle(d, contenedor) {
                     <p style="margin:0; font-size:20px; color:#8890a8;">Lenguaje: <span style="color:#4792cc; font-weight:bold;">${d.language}</span></p>
                     <p style="margin:5px 0 0; font-size:20px; color:#8890a8;">Pokémon: <span style="text-transform:capitalize; color:#fff; font-weight:bold;">${d.pokemon}</span></p>
                 </div>
-                <img src="${d.pokemon_img}" style="width:120px; height:120px; image-rendering:pixelated;">
+                <img src="${d.pokemon_img}" style="width:100px; height:100px; image-rendering:pixelated;">
             </div>
 
-            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top:10px;">
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <p style="margin:0; font-size:16px; color:#4792cc; font-weight:bold; border-bottom:2px solid #31364b; padding-bottom:4px; margin-bottom:5px;">Proyectos Destacados:</p>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    ${
+                        drepos.length > 0 
+                        ? drepos.slice(0, 5).map(r => `
+                            <div style="background:#31364b;  border:1px solid #4792cc; border-radius:4px; padding:6px 12px; display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:20px; color:#fff; ">${r.name}</span>
+                                <span style="font-size:20px; color:#4792cc; background:rgba(71,146,204,0.1); padding:2px 6px; border-radius:3px; ">${r.language || 'Code'}</span>
+                            </div>
+                        `).join('')
+                        : '<p style="font-size:14px; color:#8890a8;">No hay repositorios.</p>'
+                    }
+                </div>
+            </div>
+
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top:5px;">
                 <button id="btn-actualizar" class="btn1" style="width:100%; height:45px; font-size:18px;">Actualizar Datos</button>
             </div>
         </div>
     `;
 
     contenedor.innerHTML = "";
-    contenedor.appendChild(card);
+    contenedor.appendChild(profile);
 
+    // Reasignamos el evento del botón
     document.getElementById("btn-actualizar").onclick = () => actualizarPerfil(d.github_user);
 }
+
 
 /* ═══════════════════════════════════════
    5. ROUTER & HELPERS
